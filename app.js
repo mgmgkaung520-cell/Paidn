@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let pendingVideoUrl = ""; 
   let countdownTimer;
 
-  const ADS_LINK = "https://www.effectivecpmnetwork.com/yzs90vf0?key=32df05e9b8d8109443f391b70db6d46f";
+  const ADS_LINK = "https://missiondifferentyawn.com/ysnnykz0?key=767a1fcc31c26b4d569736848298428e";
 
   function loadPremiumVideos(page) {
     if (searchStatus) searchStatus.style.display = "block";
