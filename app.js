@@ -12,19 +12,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const prevPageBtn = document.getElementById("prevPage");
   const nextPageBtn = document.getElementById("nextPage");
   const pageNumberSpan = document.getElementById("pageNumber");
+  
+  const categoryBtns = document.querySelectorAll(".category-btn");
+
+  const startAdsModal = document.getElementById("startAdsModal");
+  const startAdsIframe = document.getElementById("startAdsIframe");
+  const startAdsTimer = document.getElementById("startAdsTimer");
 
   let currentPage = 1;
   const perPage = 30; 
   let pendingVideoUrl = ""; 
   let countdownTimer;
+  let currentQuery = "myanmar"; // Default အနေဖြင့် မြန်မာကားများကို စတင်ပြသမည်
 
   const ADS_LINK = "https://missiondifferentyawn.com/ysnnykz0?key=767a1fcc31c26b4d569736848298428e";
 
-  function loadPremiumVideos(page) {
+  function loadPremiumVideos(page, query) {
     if (searchStatus) searchStatus.style.display = "block";
     if (movieGrid) movieGrid.innerHTML = "";
 
-    const API_URL = `https://www.eporner.com/api/v2/video/search/?query=asian&per_page=${perPage}&page=${page}&thumbsize=big`;
+    const API_URL = `https://www.eporner.com/api/v2/video/search/?query=${query}&per_page=${perPage}&page=${page}&thumbsize=big`;
 
     fetch(API_URL)
       .then(res => res.json())
@@ -59,12 +66,28 @@ document.addEventListener("DOMContentLoaded", () => {
           });
 
           if (movieGrid) movieGrid.appendChild(fragment);
+        } else {
+          if (movieGrid) movieGrid.innerHTML = `<div style="color: #94a3b8; text-align: center; width: 100%; padding: 40px 0;">ဗီဒီယို ရှာမတွေ့ပါ။</div>`;
         }
       })
       .catch(() => {
         if (searchStatus) searchStatus.style.display = "none";
       });
   }
+
+  categoryBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      categoryBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      
+      currentQuery = btn.getAttribute("data-query");
+      currentPage = 1; 
+      if (pageNumberSpan) pageNumberSpan.innerText = `Page ${currentPage}`;
+      if (prevPageBtn) prevPageBtn.disabled = true;
+      
+      loadPremiumVideos(currentPage, currentQuery);
+    });
+  });
 
   if (movieGrid) {
     movieGrid.addEventListener("click", (e) => {
@@ -118,9 +141,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (nextPageBtn) {
     nextPageBtn.addEventListener("click", () => {
       currentPage++;
-      pageNumberSpan.innerText = `Page ${currentPage}`;
+      if (pageNumberSpan) pageNumberSpan.innerText = `Page ${currentPage}`;
       if (prevPageBtn) prevPageBtn.disabled = false;
-      loadPremiumVideos(currentPage);
+      loadPremiumVideos(currentPage, currentQuery);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
@@ -129,9 +152,9 @@ document.addEventListener("DOMContentLoaded", () => {
     prevPageBtn.addEventListener("click", () => {
       if (currentPage > 1) {
         currentPage--;
-        pageNumberSpan.innerText = `Page ${currentPage}`;
+        if (pageNumberSpan) pageNumberSpan.innerText = `Page ${currentPage}`;
         if (currentPage === 1) prevPageBtn.disabled = true;
-        loadPremiumVideos(currentPage);
+        loadPremiumVideos(currentPage, currentQuery);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
@@ -147,5 +170,31 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  loadPremiumVideos(currentPage);
+  // ဝင်ဝင်ချင်း ၁၀ စက္ကန့် ကြော်ငြာပြသမည့် စနစ်အမှန်
+  if (startAdsModal && startAdsIframe) {
+    startAdsIframe.src = ADS_LINK;
+    startAdsModal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+
+    let startSecondsLeft = 10; 
+    if (startAdsTimer) startAdsTimer.innerText = startSecondsLeft;
+
+    const startAdsCountdown = setInterval(() => {
+      startSecondsLeft--;
+      if (startAdsTimer) startAdsTimer.innerText = startSecondsLeft;
+
+      if (startSecondsLeft <= 0) {
+        clearInterval(startAdsCountdown);
+        startAdsModal.style.display = "none";
+        startAdsIframe.src = "";
+        document.body.style.overflow = "auto";
+        
+        if (typeof showWelcomeModal === "function") {
+          showWelcomeModal();
+        }
+      }
+    }, 1000);
+  }
+
+  loadPremiumVideos(currentPage, currentQuery);
 });
